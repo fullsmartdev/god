@@ -1,7 +1,19 @@
 require File.join(File.dirname(__FILE__), *%w[.. lib god])
 
 require 'test/unit'
-# require 'mocha'
+
+begin
+  require 'mocha'
+rescue LoadError
+  unless gems ||= false
+    require 'rubygems'
+    gems = true
+    retry
+  else
+    puts "=> You need the Mocha gem to run these tests."
+    exit
+  end
+end
 
 include God
 
@@ -16,12 +28,22 @@ module God
   end
 
   class FakeCondition < Condition
-      
     def test
       true
     end
-  
   end
+  
+  module Behaviors
+    class FakeBehavior < Behavior
+    end
+  end
+end
+
+def silence_warnings
+  old_verbose, $VERBOSE = $VERBOSE, nil
+  yield
+ensure
+  $VERBOSE = old_verbose
 end
 
 # This allows you to be a good OOP citizen and honor encapsulation, but

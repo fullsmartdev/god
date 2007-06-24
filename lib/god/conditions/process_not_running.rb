@@ -1,18 +1,9 @@
 module God
   module Conditions
     
-    class ProcessNotRunning < Condition
-      attr_accessor :pid_file
-      
-      def valid?
-        valid = true
-        valid &= complain("You must specify the 'pid_file' attribute for :process_not_running") if self.pid_file.nil?
-        valid
-      end
-    
+    class ProcessNotRunning < ProcessCondition
       def test
-        return false unless File.exist?(self.pid_file)
-        
+        return false unless super
         pid = File.open(self.pid_file).read.strip
         process_running?(pid)
       end

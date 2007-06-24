@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + '/helper'
+require 'helper'
 
 class TestSystemProcess < Test::Unit::TestCase
   def setup

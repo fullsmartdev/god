@@ -5,7 +5,7 @@ module God
     attr_accessor :name, :cwd, :start, :stop, :restart, :grace
     
     # api
-    attr_accessor :behaviors, :conditions
+    attr_accessor :conditions
     
     # 
     def initialize
@@ -15,32 +15,9 @@ module God
       # keep track of which action each condition belongs to
       @action = nil
       
-      self.behaviors = []
-      
       # the list of conditions for each action
       self.conditions = {:start => [],
                          :restart => []}
-    end
-    
-    def behavior(kind)
-      # create the behavior
-      begin
-        b = Behavior.generate(kind)
-      rescue NoSuchBehaviorError => e
-        puts e.message
-        exit
-      end
-      
-      # send to block so config can set attributes
-      yield(b) if block_given?
-      
-      # exit if the Behavior is invalid, the Behavior will have printed
-      # out its own error messages by now
-      unless b.valid?
-        exit
-      end
-      
-      self.behaviors << b
     end
     
     def start_if
@@ -109,14 +86,18 @@ module God
       when :start
         puts self.start
         Dir.chdir(self.cwd) do
-          call_action(c, :start, self.start)
+          c.before_start
+          call_action(self.start)
+          c.after_start
         end
         sleep(self.grace)
       when :restart
         if self.restart
           puts self.restart
           Dir.chdir(self.cwd) do
-            call_action(c, :restart, self.restart)
+            c.before_restart
+            call_action(self.restart)
+            c.after_restart
           end
         else
           self.action(:stop, c)
@@ -126,27 +107,20 @@ module God
       when :stop
         puts self.stop
         Dir.chdir(self.cwd) do
-          call_action(c, :stop, self.stop)
+          c.before_stop
+          call_action(self.stop)
+          c.after_stop
         end
         sleep(self.grace)
       end      
     end
     
-    def call_action(condition, action, command)
-      # before
-      (self.behaviors + [condition]).each { |b| b.send("before_#{action}") }
-      
-      # action
-      if command.kind_of?(String)
-        # string command
-        system(command)
+    def call_action(action)
+      if action.kind_of?(String)
+        system(action)
       else
-        # lambda command
-        command.call
+        action.call
       end
-      
-      # after
-      (self.behaviors + [condition]).each { |b| b.send("after_#{action}") }
     end
   end
   

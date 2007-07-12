@@ -1,7 +1,7 @@
 module God
   module Conditions
     
-    class ProcessExits < EventCondition
+    class ProcessNotRunning < PollCondition
       attr_accessor :pid_file
       
       def valid?
@@ -10,11 +10,11 @@ module God
         valid
       end
     
-      def register
-        pid = File.open(self.pid_file).read.strip.to_i
-        EventHandler.register(pid, :proc_exit) {
-          puts 'Process exited'
-        }
+      def test
+        return false unless File.exist?(self.pid_file)
+        
+        pid = File.open(self.pid_file).read.strip
+        System::Process.new(pid).exists?
       end
     end
     

@@ -1,5 +1,4 @@
 $:.unshift File.dirname(__FILE__)     # For use/testing when no gem is installed
-$:.unshift File.join(File.dirname(__FILE__), *%w[.. ext kqueue_handler])
 
 # internal requires
 require 'god/base'
@@ -12,7 +11,7 @@ require 'god/behaviors/clean_pid_file'
 
 require 'god/condition'
 require 'god/conditions/timeline'
-require 'god/conditions/process_running'
+require 'god/conditions/process_not_running'
 require 'god/conditions/process_exits'
 require 'god/conditions/memory_usage'
 require 'god/conditions/cpu_usage'
@@ -21,9 +20,6 @@ require 'god/conditions/always'
 require 'god/reporter'
 require 'god/server'
 require 'god/timer'
-require 'god/hub'
-
-require 'god/metric'
 
 require 'god/watch'
 require 'god/meddle'
@@ -35,8 +31,13 @@ module God
   
   case RUBY_PLATFORM
   when /darwin/i, /bsd/i
-    require 'kqueue_handler'
+    $:.unshift File.join(File.dirname(__FILE__), *%w[.. ext kqueue_handler])
+    require 'god/event_handlers/kqueue_handler'
     EventHandler.handler = KQueueHandler
+  when /linux/i
+    $:.unshift File.join(File.dirname(__FILE__), *%w[.. ext netlink_handler])
+    require 'god/event_handlers/netlink_handler'
+    EventHandler.handler = NetlinkHandler
   else
     raise NotImplementedError, "Platform not supported for EventHandler"
   end
@@ -45,6 +46,6 @@ module God
     m = Meddle.new(options)
     yield m
     m.monitor
-    Timer.get.join
+    m.timer.join
   end  
 end

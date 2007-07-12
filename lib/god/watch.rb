@@ -1,13 +1,11 @@
 module God
   
   class Watch < Base
-    VALID_STATES = [:init, :up, :start, :restart]
-    
     # config
-    attr_accessor :name, :state, :start, :stop, :restart, :interval, :grace
+    attr_accessor :name, :start, :stop, :restart, :interval, :grace
     
     # api
-    attr_accessor :behaviors, :metrics
+    attr_accessor :behaviors, :conditions
     
     # internal
     attr_accessor :mutex
@@ -15,18 +13,18 @@ module God
     # 
     def initialize(meddle)
       @meddle = meddle
-            
+      
       # no grace period by default
       self.grace = 0
       
-      # the list of behaviors
+      # keep track of which action each condition belongs to
+      @action = nil
+      
       self.behaviors = []
       
       # the list of conditions for each action
-      self.metrics = {:init => [],
-                      :start => [],
-                      :restart => [],
-                      :up => []}
+      self.conditions = {:start => [],
+                         :restart => []}
                          
       # mutex
       self.mutex = Mutex.new
@@ -50,85 +48,68 @@ module God
       self.behaviors << b
     end
     
-    ###########################################################################
-    #
-    # Advanced mode
-    #
-    ###########################################################################
-    
-    # Define a transition handler which consists of a set of conditions
-    def transition(start_states, end_states)
-      # convert to into canonical hash form
-      canonical_end_states = canonical_hash_form(end_states)
-      
-      # for each start state do
-      Array(start_states).each do |start_state|
-        # validate start state
-        unless VALID_STATES.include?(start_state)
-          abort "Invalid state :#{start_state}. Must be one of the symbols #{VALID_STATES.map{|x| ":#{x}"}.join(', ')}"
-        end
-        
-        # create a new metric to hold the watch, end states, and conditions
-        m = Metric.new(self, canonical_end_states)
-        
-        # let the config file define some conditions on the metric
-        yield(m)
-        
-        # record the metric
-        self.metrics[start_state] << m
-      end
-    end
-    
-    ###########################################################################
-    #
-    # Simple mode
-    #
-    ###########################################################################
-    
     def start_if
-      self.transition(:up, :start) do |on|
-        yield(on)
-      end
+      @action = :start
+      yield(self)
+      @action = nil
     end
     
     def restart_if
-      self.transition(:up, :restart) do |on|
-        yield(on)
-      end
+      @action = :restart
+      yield(self)
+      @action = nil
     end
     
-    ###########################################################################
-    #
-    # Lifecycle
-    #
-    ###########################################################################
+    # Instantiate a Condition of type +kind+ and pass it into the optional
+    # block. Attributes of the condition must be set in the config file
+    def condition(kind)
+      # must be in a _if block
+      unless @action
+        abort "Watch#condition can only be called from inside a start_if block"
+      end
+      
+      # create the condition
+      begin
+        c = Condition.generate(kind)
+      rescue NoSuchConditionError => e
+        abort e.message
+      end
+      
+      # send to block so config can set attributes
+      yield(c) if block_given?
+      
+      # call prepare on the condition
+      c.prepare
+      
+      # abort if the Condition is invalid, the Condition will have printed
+      # out its own error messages by now
+      unless c.valid?
+        abort
+      end
+      
+      # inherit interval from meddle if no poll condition specific interval was set
+      if c.kind_of?(PollCondition) && !c.interval
+        if self.interval
+          c.interval = self.interval
+        else
+          abort "No interval set for Condition '#{c.class.name}' in Watch '#{self.name}', and no default Watch interval from which to inherit"
+        end
+      end
+      
+      self.conditions[@action] << c
+    end
         
     # Schedule all poll conditions and register all condition events
     def monitor
-      # start monitoring at the init state
-      self.move(:init)
-    end
-    
-    # Move from one state to another
-    def move(to_state)
-      puts "move '#{self.state}' to '#{to_state}'"
-       
-      # cleanup from current state
-      if from_state = self.state
-        self.metrics[from_state].each { |m| m.disable }
+      [:start, :restart].each do |cmd|
+        self.conditions[cmd].each do |c|
+          @meddle.timer.register(self, c, cmd) if c.kind_of?(PollCondition)
+          c.register(self) if c.kind_of?(EventCondition)
+        end
       end
-      
-      # perform action (if available)
-      self.action(to_state)
-      
-      # move to new state
-      self.metrics[to_state].each { |m| m.enable }
-      
-      # set state
-      self.state = to_state
     end
     
-    def action(a, c = nil)
+    def action(a, c)
       case a
       when :start
         puts self.start
@@ -152,9 +133,7 @@ module God
     
     def call_action(condition, action, command)
       # before
-      before_items = self.behaviors
-      before_items += [condition] if condition
-      before_items.each { |b| b.send("before_#{action}") }
+      (self.behaviors + [condition]).each { |b| b.send("before_#{action}") }
       
       # action
       if command.kind_of?(String)
@@ -166,13 +145,7 @@ module God
       end
       
       # after
-      after_items = self.behaviors
-      after_items += [condition] if condition
-      after_items.each { |b| b.send("after_#{action}") }
-    end
-    
-    def canonical_hash_form(to)
-      to.instance_of?(Symbol) ? {true => to} : to
+      (self.behaviors + [condition]).each { |b| b.send("after_#{action}") }
     end
   end
   

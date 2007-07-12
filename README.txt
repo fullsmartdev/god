@@ -1,7 +1,5 @@
 god
     by Tom Preston-Werner
-       Kevin Clark (kqueue/netlink support)
-       
     http://god.rubyforge.org
 
 == DESCRIPTION:

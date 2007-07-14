@@ -2,15 +2,14 @@ if $0 == __FILE__
   require File.join(File.dirname(__FILE__), *%w[.. .. lib god])
 end
 
-RAILS_ROOT = "/Users/tom/dev/git/helloworld"
+RAILS_ROOT = "/Users/tom/dev/powerset/speechverb"
 
 God.meddle do |god|
   god.watch do |w|
     w.name = "local-3000"
     w.interval = 5 # seconds
-    w.start = "mongrel_rails start -P ./log/mongrel.pid -c #{RAILS_ROOT} -d"
+    w.start = "mongrel_rails start -P ./log/mongrel.pid -c #{RAILS_ROOT} -p 3001 -d"
     w.stop = "mongrel_rails stop -P ./log/mongrel.pid -c #{RAILS_ROOT}"
-    w.grace = 5
     
     pid_file = File.join(RAILS_ROOT, "log/mongrel.pid")
     
@@ -20,37 +19,43 @@ God.meddle do |god|
     end
     
     # determine the state on startup
-    w.lifecycle(:init, [:up, :start]) do |start|
-      start.condition(:process_running) do |c|
+    w.transition(:init, { true => :up, false => :start }) do |on|
+      on.condition(:process_running) do |c|
         c.running = true
         c.pid_file = pid_file
       end
     end
     
     # determine when process has finished starting
-    w.lifecycle([:start, :restart], :up) do |up|
-      up.condition(:http) do |c|
-        
+    w.transition([:start, :restart], :up) do |on|
+      on.condition(:process_running) do |c|
+        c.running = true
+        c.pid_file = pid_file
       end
     end
   
     # start if process is not running
-    w.lifecycle(:up, :start) do |start|
-      start.condition(:process_exits) do |c|
+    w.transition(:up, :start) do |on|
+      on.condition(:process_exits) do |c|
         c.pid_file = pid_file
       end
+      
+      # on.condition(:process_running) do |c|
+      #   c.running = false
+      #   c.pid_file = pid_file
+      # end
     end
     
     # restart if memory or cpu is too high
-    w.lifecycle(:up, :restart) do |restart|
-      restart.condition(:memory_usage) do |c|
+    w.transition(:up, :restart) do |on|
+      on.condition(:memory_usage) do |c|
         c.interval = 20
         c.pid_file = pid_file
         c.above = (50 * 1024) # 50mb
         c.times = [3, 5]
       end
       
-      restart.condition(:cpu_usage) do |c|
+      on.condition(:cpu_usage) do |c|
         c.interval = 10
         c.pid_file = pid_file
         c.above = 10 # percent
@@ -73,7 +78,3 @@ God.meddle do |god|
   #   end
   # end
 end
-
-__END__
-
-init -> start -> up -> 

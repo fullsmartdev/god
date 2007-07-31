@@ -48,9 +48,7 @@ module God
         watch.mutex.synchronize do
           result = condition.test
           
-          msg = watch.name + ' ' + condition.class.name + " [#{result}]"
-          Syslog.debug(msg)
-          puts msg
+          puts watch.name + ' ' + condition.class.name + " [#{result}]"
           
           condition.after
           
@@ -72,9 +70,7 @@ module God
         watch = metric.watch
         
         watch.mutex.synchronize do
-          msg = watch.name + ' ' + condition.class.name + " [true]"
-          Syslog.debug(msg)
-          puts msg
+          puts watch.name + ' ' + condition.class.name + " [true]"
           
           p metric.destination
           

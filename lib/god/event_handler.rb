@@ -2,30 +2,9 @@ module God
   class EventHandler
     @@actions = {}
     @@handler = nil
-    @@loaded = false
     
-    def self.loaded?
-      @@loaded
-    end
-    
-    def self.load
-      begin
-        case RUBY_PLATFORM
-        when /darwin/i, /bsd/i
-          require 'god/event_handlers/kqueue_handler'
-          @@handler = KQueueHandler
-        when /linux/i
-          require 'god/event_handlers/netlink_handler'
-          @@handler = NetlinkHandler
-        else
-          raise NotImplementedError, "Platform not supported for EventHandler"
-        end
-        @@loaded = true
-      rescue LoadError
-        require 'god/event_handlers/dummy_handler'
-        @@handler = DummyHandler
-        @@loaded = false
-      end
+    def self.handler=(value)
+      @@handler = value
     end
     
     def self.register(pid, event, &block)
@@ -47,7 +26,7 @@ module God
     end
     
     def self.call(pid, event)
-      @@actions[pid][event].call if watching_pid?(pid) && @@actions[pid][event]
+      @@actions[pid][event].call
     end
     
     def self.watching_pid?(pid)

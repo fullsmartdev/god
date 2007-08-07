@@ -17,10 +17,6 @@ module God
     def method_missing(*args, &block)
       @meddle.send(*args, &block)
     end
-    
-    def ping
-      'pong'
-    end
 
     private
 

@@ -7,10 +7,9 @@ require 'god/errors'
 
 require 'god/system/process'
 
-require 'god/dependency_graph'
-
 require 'god/behavior'
 require 'god/behaviors/clean_pid_file'
+require 'god/behaviors/notify_when_flapping'
 
 require 'god/condition'
 require 'god/conditions/timeline'
@@ -20,6 +19,8 @@ require 'god/conditions/tries'
 require 'god/conditions/memory_usage'
 require 'god/conditions/cpu_usage'
 require 'god/conditions/always'
+require 'god/conditions/lambda'
+require 'god/conditions/degrading_lambda'
 
 require 'god/reporter'
 require 'god/server'

@@ -12,7 +12,7 @@ module God
       
       def setup
         # connect to drb unix socket
-        DRb.start_service("druby://127.0.0.1:0")
+        DRb.start_service
         @server = DRbObject.new(nil, God::Socket.socket(@options[:port]))
         
         # ping server to ensure that it is responsive

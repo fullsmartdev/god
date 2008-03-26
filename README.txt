@@ -24,20 +24,12 @@ Sign up for the god mailing list at http://groups.google.com/group/god-rb
 == INSTALL:
 
   $ sudo gem install god
-  
-== CONTRIBUTE:
-
-Latest code is available at http://github.com/mojombo/god
-
-The 'master' branch can be cloned with:
-
-  $ git clone git://github.com/mojombo/god.git
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2007 Tom Preston-Werner
+Copyright (c) 2007 FIX
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

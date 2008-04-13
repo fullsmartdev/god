@@ -5,7 +5,6 @@ require 'rubygems'
 
 # core
 require 'stringio'
-require 'logger'
 require 'fileutils'
 
 begin
@@ -19,6 +18,7 @@ end
 
 # internal requires
 require 'god/errors'
+require 'god/simple_logger'
 require 'god/logger'
 require 'god/system/process'
 require 'god/dependency_graph'
@@ -47,6 +47,10 @@ require 'god/conditions/complex'
 
 require 'god/contact'
 require 'god/contacts/email'
+begin
+  require 'god/contacts/jabber'
+rescue LoadError
+end
 
 require 'god/socket'
 require 'god/driver'
@@ -70,7 +74,6 @@ $:.unshift File.join(File.dirname(__FILE__), *%w[.. ext god])
 
 # App wide logging system
 LOG = God::Logger.new
-LOG.datetime_format = "%Y-%m-%d %H:%M:%S "
 
 def applog(watch, level, text)
   LOG.log(watch, level, text)
@@ -130,7 +133,7 @@ class Module
 end
 
 module God
-  VERSION = '0.7.2'
+  VERSION = '0.7.5'
   
   LOG_BUFFER_SIZE_DEFAULT = 100
   PID_FILE_DIRECTORY_DEFAULTS = ['/var/run/god', '~/.god/pids']

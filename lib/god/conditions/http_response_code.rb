@@ -19,7 +19,6 @@ module God
     #  Optional
     #     +port+ is the port to connect (default 80)
     #     +path+ is the path to connect (default '/')
-    #     +headers+ is the hash of HTTP headers to send (default none)
     #     +times+ is the number of times after which to trigger (default 1)
     #             e.g. 3 (times in a row) or [3, 5] (three out of fives times)
     #     +timeout+ is the time to wait for a connection (default 60.seconds)
@@ -69,14 +68,12 @@ module God
                     :host,         # e.g. www.example.com
                     :port,         # e.g. 8080
                     :timeout,      # e.g. 60.seconds
-                    :path,         # e.g. '/'
-                    :headers       # e.g. {'Host' => 'myvirtual.mydomain.com'}
+                    :path          # e.g. '/'
       
       def initialize
         super
         self.port = 80
         self.path = '/'
-        self.headers = {}
         self.times = [1, 1]
         self.timeout = 60.seconds
       end
@@ -111,7 +108,7 @@ module God
         
         Net::HTTP.start(self.host, self.port) do |http|
           http.read_timeout = self.timeout
-          response = http.get(self.path, self.headers)
+          response = http.get(self.path)
         end
         
         actual_response_code = response.code.to_i

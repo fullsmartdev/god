@@ -1,6 +1,6 @@
 module God
   
-  class Logger < SimpleLogger
+  class Logger < ::Logger
     SYSLOG_EQUIVALENTS = {:fatal => :crit,
                           :error => :err,
                           :warn => :debug,
@@ -22,7 +22,7 @@ module God
       @mutex = Mutex.new
       @capture = nil
       @templogio = StringIO.new
-      @templog = SimpleLogger.new(@templogio)
+      @templog = ::Logger.new(@templogio)
       @templog.level = Logger::INFO
       load_syslog
     end

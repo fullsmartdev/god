@@ -5,6 +5,7 @@ require 'rubygems'
 
 # core
 require 'stringio'
+require 'logger'
 require 'fileutils'
 
 begin
@@ -18,9 +19,12 @@ end
 
 # internal requires
 require 'god/errors'
-require 'god/simple_logger'
 require 'god/logger'
+
 require 'god/system/process'
+require 'god/system/portable_poller'
+require 'god/system/slash_proc_poller'
+
 require 'god/dependency_graph'
 require 'god/timeline'
 require 'god/configurable'
@@ -29,7 +33,6 @@ require 'god/task'
 
 require 'god/behavior'
 require 'god/behaviors/clean_pid_file'
-require 'god/behaviors/clean_unix_socket'
 require 'god/behaviors/notify_when_flapping'
 
 require 'god/condition'
@@ -71,6 +74,7 @@ $:.unshift File.join(File.dirname(__FILE__), *%w[.. ext god])
 
 # App wide logging system
 LOG = God::Logger.new
+LOG.datetime_format = "%Y-%m-%d %H:%M:%S "
 
 def applog(watch, level, text)
   LOG.log(watch, level, text)
@@ -130,7 +134,7 @@ class Module
 end
 
 module God
-  VERSION = '0.7.5'
+  VERSION = '0.7.2'
   
   LOG_BUFFER_SIZE_DEFAULT = 100
   PID_FILE_DIRECTORY_DEFAULTS = ['/var/run/god', '~/.god/pids']

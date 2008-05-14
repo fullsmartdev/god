@@ -115,7 +115,7 @@ class TestProcessDaemon < Test::Unit::TestCase
   # alive?
   
   def test_alive_should_call_system_process_exists
-    File.expects(:read).with('blah.pid').times(2).returns('1234')
+    File.expects(:read).with('blah.pid').returns('1234')
     System::Process.any_instance.expects(:exists?).returns(false)
     assert !@p.alive?
   end
@@ -165,24 +165,17 @@ class TestProcessDaemon < Test::Unit::TestCase
     File.stubs(:read).returns("123")
     assert_equal 123, @p.pid
     
-    File.stubs(:read).raises(Errno::ENOENT)
+    File.stubs(:read).returns("")
     assert_equal 123, @p.pid
     
     File.stubs(:read).returns("246")
     assert_equal 246, @p.pid
   end
   
-  # default_pid_file
+  # defaul_pid_file
   
   def test_default_pid_file
     assert_equal File.join(God.pid_file_directory, 'foo.pid'), @p.default_pid_file
-  end
-  
-  # unix socket
-  
-  def test_unix_socket_should_return_path_specified
-    @p.unix_socket = '/path/to-socket'
-    assert_equal '/path/to-socket', @p.unix_socket
   end
   
   # call_action

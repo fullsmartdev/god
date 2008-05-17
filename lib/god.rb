@@ -20,11 +20,7 @@ end
 require 'god/errors'
 require 'god/simple_logger'
 require 'god/logger'
-
 require 'god/system/process'
-require 'god/system/portable_poller'
-require 'god/system/slash_proc_poller'
-
 require 'god/dependency_graph'
 require 'god/timeline'
 require 'god/configurable'
@@ -133,7 +129,7 @@ class Module
 end
 
 module God
-  VERSION = '0.7.6'
+  VERSION = '0.7.5'
   
   LOG_BUFFER_SIZE_DEFAULT = 100
   PID_FILE_DIRECTORY_DEFAULTS = ['/var/run/god', '~/.god/pids']

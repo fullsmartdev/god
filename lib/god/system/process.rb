@@ -4,7 +4,6 @@ module God
     class Process
       def initialize(pid)
         @pid = pid.to_i
-        @poller = fetch_system_poller.new(@pid)
       end
       
       # Return true if this process is running, false otherwise
@@ -14,27 +13,41 @@ module God
       
       # Memory usage in kilobytes (resident set size)
       def memory
-        @poller.memory
+        ps_int('rss')
       end
       
       # Percentage memory usage
       def percent_memory
-        @poller.percent_memory
+        ps_float('%mem')
       end
       
       # Percentage CPU usage
       def percent_cpu
-        @poller.percent_cpu
+        ps_float('%cpu')
+      end
+      
+      # Seconds of CPU time (accumulated cpu time, user + system)
+      def cpu_time
+        time_string_to_seconds(ps_string('time'))
       end
       
       private
       
-      def fetch_system_poller
-        if test(?d, '/proc')
-          SlashProcPoller
-        else
-          PortablePoller
-        end
+      def ps_int(keyword)
+        `ps -o #{keyword}= -p #{@pid}`.to_i
+      end
+      
+      def ps_float(keyword)
+        `ps -o #{keyword}= -p #{@pid}`.to_f
+      end
+      
+      def ps_string(keyword)
+        `ps -o #{keyword}= -p #{@pid}`.strip
+      end
+      
+      def time_string_to_seconds(text)
+        _, minutes, seconds, useconds = *text.match(/(\d+):(\d{2}).(\d{2})/)
+        (minutes.to_i * 60) + seconds.to_i
       end
     end
   

@@ -33,7 +33,6 @@ require 'god/task'
 
 require 'god/behavior'
 require 'god/behaviors/clean_pid_file'
-require 'god/behaviors/clean_unix_socket'
 require 'god/behaviors/notify_when_flapping'
 
 require 'god/condition'
@@ -52,10 +51,6 @@ require 'god/conditions/complex'
 
 require 'god/contact'
 require 'god/contacts/email'
-begin
-  require 'god/contacts/jabber'
-rescue LoadError
-end
 
 require 'god/socket'
 require 'god/driver'
@@ -465,7 +460,7 @@ module God
   def self.status
     info = {}
     self.watches.map do |name, w|
-      info[name] = {:state => w.state}
+      info[name] = {:state => w.state, :group => w.group}
     end
     info
   end

@@ -172,17 +172,10 @@ class TestProcessDaemon < Test::Unit::TestCase
     assert_equal 246, @p.pid
   end
   
-  # default_pid_file
+  # defaul_pid_file
   
   def test_default_pid_file
     assert_equal File.join(God.pid_file_directory, 'foo.pid'), @p.default_pid_file
-  end
-  
-  # unix socket
-  
-  def test_unix_socket_should_return_path_specified
-    @p.unix_socket = '/path/to-socket'
-    assert_equal '/path/to-socket', @p.unix_socket
   end
   
   # call_action

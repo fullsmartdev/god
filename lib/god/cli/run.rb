@@ -75,9 +75,8 @@ module God
         
         default_run
         
-        log_file = God.log_file
-        log_file = File.expand_path(@options[:log]) if @options[:log]        
-        if log_file
+        if @options[:log]
+          log_file = File.expand_path(@options[:log])
           puts "Sending output to log file: #{log_file}"
           
           # reset file descriptors
@@ -96,7 +95,7 @@ module God
           begin
             require 'god'
             
-            log_file = @options[:log] || God.log_file || "/dev/null"
+            log_file = @options[:log] || "/dev/null"
             
             # reset file descriptors
             STDIN.reopen "/dev/null"

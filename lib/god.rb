@@ -149,7 +149,6 @@ module God
                        :allow,
                        :log_buffer_size,
                        :pid_file_directory,
-                       :log_file,
                        :log_level,
                        :use_events
     

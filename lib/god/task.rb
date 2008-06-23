@@ -343,10 +343,10 @@ module God
         begin
           self.move(dest)
         rescue EventRegistrationFailedError
-          msg = self.name + ' Event registration failed, moving back to previous state'
-          applog(self, :info, msg)
+          msg = watch.name + ' Event registration failed, moving back to previous state'
+          applog(watch, :info, msg)
           
-          dest = self.state
+          dest = watch.state
           retry
         end
       else

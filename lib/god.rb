@@ -49,14 +49,9 @@ require 'god/conditions/flapping'
 require 'god/conditions/http_response_code'
 require 'god/conditions/disk_usage'
 require 'god/conditions/complex'
-require 'god/conditions/file_mtime'
 
 require 'god/contact'
 require 'god/contacts/email'
-begin
-  require 'god/contacts/twitterer'
-rescue LoadError
-end
 begin
   require 'god/contacts/jabber'
 rescue LoadError

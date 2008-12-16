@@ -204,10 +204,6 @@ module God
       self.driver.message(:handle_event, [condition])
     end
     
-    def signal(sig)
-      # noop
-    end
-    
     ###########################################################################
     #
     # Actions
@@ -324,7 +320,7 @@ module God
       messages = self.log_line(self, metric, condition, result)
       
       # notify
-      if result && condition.notify
+      if condition.notify && self.trigger?(metric, result)
         self.notify(condition, messages.last)
       end
       
@@ -372,7 +368,7 @@ module God
       messages = self.log_line(self, metric, condition, true)
       
       # notify
-      if condition.notify
+      if condition.notify && self.trigger?(metric, true)
         self.notify(condition, messages.last)
       end
       

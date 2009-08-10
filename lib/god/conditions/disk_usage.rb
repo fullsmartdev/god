@@ -19,14 +19,9 @@ module God
       
       def test
         usage = `df | grep -i " #{self.mount_point}$" | awk '{print $5}' | sed 's/%//'`
-       if usage.to_i > self.above
-          self.info = "disk space out of bounds"
-          return true
-        else
-          self.info = "disk space ok"
-          return false
-        end
-      end 
+        usage.to_i > self.above
+      end
     end
+    
   end
 end

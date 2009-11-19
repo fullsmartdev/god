@@ -52,24 +52,29 @@ module God
       @task.send(@name, *@args)
     end
   end
-
-  class DriverEventQueue
+  
+  class DriverEventQueue 
     def initialize
       @shutdown = false
+      @waiting = []
       @events = []
-      @mutex = Mutex.new
-      @resource = ConditionVariable.new
+      @waiting.taint
       @events.taint
       self.taint
     end
 
-    #
+    # 
     # Wake any sleeping threads after setting the sentinel
-    #
+    # 
     def shutdown
       @shutdown = true
-      @mutex.synchronize do
-        @resource.broadcast
+      begin
+        Thread.critical = true
+        @waiting.each do |t|
+          t.run
+        end
+      ensure
+        Thread.critical = false
       end
     end
 
@@ -77,32 +82,47 @@ module God
     # Sleep until the queue has something due
     #
     def pop
-      @mutex.synchronize do
-        if @events.empty?
-          raise ThreadError, "queue empty" if @shutdown
-          @resource.wait(@mutex)
-        else !@events.first.due?
-          delay = @events.first.at - Time.now
-          @resource.wait(@mutex, delay) if delay > 0
+      begin
+        while (Thread.critical = true; @events.empty? or !@events.first.due?)
+          @waiting.push Thread.current
+          if @events.empty?
+            raise ThreadError, "queue empty" if @shutdown
+            Thread.stop
+          else
+            Thread.critical = false
+            delay = @events.first.at - Time.now
+            sleep delay if delay > 0
+            Thread.critical = true
+          end
         end
-
         @events.shift
+      ensure
+        Thread.critical = false
       end
     end
 
     alias shift pop
     alias deq pop
 
-    #
-    # Add an event to the queue, wake any waiters if what we added needs to
+    # 
+    # Add an event to the queue, wake any waiters if what we added needs to 
     # happen sooner than the next pending event
     #
     def push(event)
-      @mutex.synchronize do
-        @events << event
-        @events.sort!
-
-        @resource.signal if @events.first == event
+      Thread.critical = true
+      @events << event
+      @events.sort!
+      begin
+        t = @waiting.shift if @events.first == event
+        t.wakeup if t
+      rescue ThreadError
+        retry
+      ensure
+        Thread.critical = false
+      end
+      begin
+        t.run if t
+      rescue ThreadError
       end
     end
 
@@ -110,7 +130,7 @@ module God
     alias enq push
 
     def empty?
-      @events.empty?
+      @que.empty?
     end
 
     def clear
@@ -122,12 +142,16 @@ module God
     end
 
     alias size length
+
+    def num_waiting
+      @waiting.size
+    end
   end
 
 
   class Driver
     attr_reader :thread
-
+    
     # Instantiate a new Driver and start the scheduler loop to handle events
     #   +task+ is the Task this Driver belongs to
     #

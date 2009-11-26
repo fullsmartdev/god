@@ -88,6 +88,7 @@ module God
           end
           
           ::Process.kill('KILL', pid)
+          ::Process.waitpid(pid)
           
           sleep(0.1)
           

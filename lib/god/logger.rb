@@ -1,12 +1,7 @@
 module God
   
   class Logger < SimpleLogger
-    SYSLOG_EQUIVALENTS = {:fatal => :crit,
-                          :error => :err,
-                          :warn => :debug,
-                          :info => :debug,
-                          :debug => :debug}
-    
+
     attr_accessor :logs
     
     class << self
@@ -28,25 +23,19 @@ module God
       load_syslog
     end
     
+    def level=(lev)
+      SysLogger.level = lev if Logger.syslog
+      super(lev)
+    end
+    
     # If Logger.syslog is true then attempt to load the syslog bindings. If syslog
     # cannot be loaded, then set Logger.syslog to false and continue.
     #
     # Returns nothing
     def load_syslog
-      return unless Logger.syslog
-      
-      begin
-        require 'syslog'
-        
-        # Ensure that Syslog is open
-        begin
-          Syslog.open('god')
-        rescue RuntimeError
-          Syslog.reopen('god')
-        end
-      rescue Exception
-        Logger.syslog = false
-      end
+      require File.join(File.dirname(__FILE__), *%w[sys_logger]) if Logger.syslog
+    rescue Exception => e
+      Logger.syslog = false
     end
     
     # Log a message
@@ -80,7 +69,7 @@ module God
       self.send(level, text)
 
       # send to syslog
-      Syslog.send(SYSLOG_EQUIVALENTS[level], text) if Logger.syslog
+      SysLogger.log(level, text) if Logger.syslog
     end
     
     # Get all log output for a given Watch since a certain Time.

@@ -8,7 +8,7 @@ require 'set'
 
 include God
 
-if Process.uid != 0 and RbConfig::CONFIG['host_os'] == "linux"
+if Process.uid != 0
   abort <<-EOF
 \n
 *********************************************************************

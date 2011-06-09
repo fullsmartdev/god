@@ -541,9 +541,7 @@ module God
   # Returns [String[]:task_names, String:errors]
   def self.running_load(code, filename)
     errors = ""
-    loaded_watches = []
-    unloaded_watches = []
-    jobs = []
+    watches = []
     
     begin
       LOG.start_capture
@@ -557,17 +555,9 @@ module God
           w.monitor if w.autostart?
         end
       end
-      loaded_watches = self.pending_watches.map { |w| w.name }
+      watches = self.pending_watches.dup
       self.pending_watches.clear
       self.pending_watch_states.clear
-
-      self.watches.each do |name, watch|
-        next if loaded_watches.include?(name)
-
-        jobs << Thread.new(watch) { |w| w.action(:stop); self.unwatch(w) }
-
-        unloaded_watches << name
-      end
 
       # make sure we quit capturing when we're done
       LOG.finish_capture
@@ -581,9 +571,8 @@ module God
       end
     end
     
-    jobs.each { |t| t.join }
-
-    [loaded_watches, errors, unloaded_watches]
+    names = watches.map { |x| x.name }
+    [names, errors]
   end
   
   # Load the given file(s) according to the given glob.

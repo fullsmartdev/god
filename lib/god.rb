@@ -530,30 +530,27 @@ module God
   # Returns String:joined_log_lines
   def self.running_log(watch_name, since)
     matches = pattern_match(watch_name, self.watches.keys)
-
+    
     unless matches.first
       raise NoSuchWatchError.new
     end
-
+    
     LOG.watch_log_since(matches.first, since)
   end
-
+  
   # Load a config file into a running god instance. Rescues any exceptions
   # that the config may raise and reports these back to the caller.
   #   +code+ is a String containing the config file
   #   +filename+ is the filename of the config file
-  #   +action+ is a String containing 'stop', 'remove' or 'leave' (default)
   #
-  # Returns [String[]:loaded_names, String:errors, String[]:unloaded_names]
-  def self.running_load(code, filename, action = nil)
+  # Returns [String[]:task_names, String:errors]
+  def self.running_load(code, filename)
     errors = ""
-    loaded_watches = []
-    unloaded_watches = []
-    jobs = []
-
+    watches = []
+    
     begin
       LOG.start_capture
-
+      
       Gem.clear_paths
       eval(code, root_binding, filename)
       self.pending_watches.each do |w|
@@ -563,26 +560,9 @@ module God
           w.monitor if w.autostart?
         end
       end
-      loaded_watches = self.pending_watches.map { |w| w.name }
+      watches = self.pending_watches.dup
       self.pending_watches.clear
       self.pending_watch_states.clear
-
-      self.watches.each do |name, watch|
-        next if loaded_watches.include?(name)
-
-        case action
-        when 'stop'
-          jobs << Thread.new(watch) { |w| w.action(:stop); self.unwatch(w) }
-          unloaded_watches << name
-        when 'remove'
-          jobs << Thread.new(watch) { |w| self.unwatch(w) }
-          unloaded_watches << name
-        when 'leave', '', nil
-          # Do nothing
-        else
-          raise InvalidCommandError, "Unknown action: #{action}"
-        end
-      end
 
       # make sure we quit capturing when we're done
       LOG.finish_capture
@@ -596,9 +576,8 @@ module God
       end
     end
     
-    jobs.each { |t| t.join }
-
-    [loaded_watches, errors, unloaded_watches]
+    names = watches.map { |x| x.name }
+    [names, errors]
   end
   
   # Load the given file(s) according to the given glob.
@@ -679,10 +658,12 @@ module God
         sleep 60
       end
     end
-    
-    self.main.join
   end
-  
+
+  def self.join
+    self.main.join if self.main
+  end
+
   def self.version
     God::VERSION
   end
@@ -692,6 +673,7 @@ module God
   # Returns nothing
   def self.at_exit
     self.start
+    self.join
   end
   
   # private

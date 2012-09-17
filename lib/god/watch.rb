@@ -280,7 +280,7 @@ module God
     # Perform the specifics of the action.
     #
     # condition - The Condition.
-    # action    - The Symbol action.
+    # action    - The Sybmol action.
     #
     # Returns nothing.
     def call_action(condition, action)

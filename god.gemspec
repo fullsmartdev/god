@@ -3,8 +3,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'god'
-  s.version = '0.13.2'
-  s.date = '2013-02-26'
+  s.version = '0.13.3'
+  s.date = '2013-09-25'
 
   s.summary = "Process monitoring framework."
   s.description = "An easy to configure, easy to extend monitoring framework written in Ruby."
@@ -37,7 +37,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('airbrake', '~> 3.1.7')
   s.add_development_dependency('nokogiri', '~> 1.5.0')
   s.add_development_dependency('activesupport', [ '>= 2.3.10', '< 4.0.0' ])
-  s.add_development_dependency('statsd-ruby')
   # = MANIFEST =
   s.files = %w[
     Announce.txt
@@ -81,12 +80,12 @@ Gem::Specification.new do |s|
     lib/god/conditions/tries.rb
     lib/god/configurable.rb
     lib/god/contact.rb
+    lib/god/contacts/airbrake.rb
     lib/god/contacts/campfire.rb
     lib/god/contacts/email.rb
     lib/god/contacts/jabber.rb
     lib/god/contacts/prowl.rb
     lib/god/contacts/scout.rb
-    lib/god/contacts/statsd.rb
     lib/god/contacts/twitter.rb
     lib/god/contacts/webhook.rb
     lib/god/driver.rb

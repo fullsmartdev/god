@@ -89,7 +89,6 @@ load_contact(:email)
 load_contact(:jabber)
 load_contact(:prowl)
 load_contact(:scout)
-load_contact(:statsd)
 load_contact(:twitter)
 load_contact(:webhook)
 load_contact(:airbrake)
@@ -158,7 +157,7 @@ end
 
 module God
   # The String version number for this package.
-  VERSION = '0.13.2'
+  VERSION = '0.13.3'
 
   # The Integer number of lines of backlog to keep for the logger.
   LOG_BUFFER_SIZE_DEFAULT = 100

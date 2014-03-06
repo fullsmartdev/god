@@ -32,10 +32,12 @@ module God
         begin
           uid_num = Etc.getpwnam(self.uid).uid if self.uid
           gid_num = Etc.getgrnam(self.gid).gid if self.gid
+          gid_num = Etc.getpwnam(self.uid).gid if self.gid.nil? && self.uid
 
           ::Dir.chroot(self.chroot) if self.chroot
-          ::Process.groups = [gid_num] if self.gid
-          ::Process::Sys.setgid(gid_num) if self.gid
+          ::Process.groups = [gid_num] if gid_num
+          ::Process.initgroups(self.uid, gid_num) if self.uid && gid_num
+          ::Process::Sys.setgid(gid_num) if gid_num
           ::Process::Sys.setuid(uid_num) if self.uid
         rescue ArgumentError, Errno::EPERM, Errno::ENOENT
           exit(1)
@@ -210,19 +212,13 @@ module God
           applog(self, :info, "#{self.name} sent SIG#{@stop_signal}")
 
           # Poll to see if it's dead
-          pid_not_found = false
           @stop_timeout.times do
-            if pid
-              begin
-                ::Process.kill(0, pid)
-              rescue Errno::ESRCH
-                # It died. Good.
-                applog(self, :info, "#{self.name} process stopped")
-                return
-              end
-            else
-              applog(self, :warn, "#{self.name} pid not found in #{self.pid_file}") unless pid_not_found
-              pid_not_found = true
+            begin
+              ::Process.kill(0, pid)
+            rescue Errno::ESRCH
+              # It died. Good.
+              applog(self, :info, "#{self.name} process stopped")
+              return
             end
 
             sleep 1
@@ -295,11 +291,13 @@ module God
         File.umask self.umask if self.umask
         uid_num = Etc.getpwnam(self.uid).uid if self.uid
         gid_num = Etc.getgrnam(self.gid).gid if self.gid
+        gid_num = Etc.getpwnam(self.uid).gid if self.gid.nil? && self.uid
 
         ::Dir.chroot(self.chroot) if self.chroot
         ::Process.setsid
-        ::Process.groups = [gid_num] if self.gid
-        ::Process::Sys.setgid(gid_num) if self.gid
+        ::Process.groups = [gid_num] if gid_num
+        ::Process.initgroups(self.uid, gid_num) if self.uid && gid_num
+        ::Process::Sys.setgid(gid_num) if gid_num
         ::Process::Sys.setuid(uid_num) if self.uid
         self.dir ||= '/'
         Dir.chdir self.dir

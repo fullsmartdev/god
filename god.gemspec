@@ -3,8 +3,8 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
 
   s.name = 'god'
-  s.version = '0.13.4'
-  s.date = '2014-03-05'
+  s.version = '0.13.3'
+  s.date = '2013-09-25'
 
   s.summary = "Process monitoring framework."
   s.description = "An easy to configure, easy to extend monitoring framework written in Ruby."
@@ -83,7 +83,6 @@ Gem::Specification.new do |s|
     lib/god/contacts/airbrake.rb
     lib/god/contacts/campfire.rb
     lib/god/contacts/email.rb
-    lib/god/contacts/hipchat.rb
     lib/god/contacts/jabber.rb
     lib/god/contacts/prowl.rb
     lib/god/contacts/scout.rb
@@ -155,7 +154,6 @@ Gem::Specification.new do |s|
     test/test_event_handler.rb
     test/test_god.rb
     test/test_handlers_kqueue_handler.rb
-    test/test_hipchat.rb
     test/test_jabber.rb
     test/test_logger.rb
     test/test_metric.rb

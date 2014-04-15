@@ -45,9 +45,6 @@ class TestProcessChild < Test::Unit::TestCase
     @p.log = '/tmp/foo.log'
     @p.uid = 'root'
 
-    ::Process.stubs(:groups=)
-    ::Process.stubs(:initgroups)
-
     assert @p.valid?
   end
 

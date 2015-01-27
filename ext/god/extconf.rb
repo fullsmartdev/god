@@ -9,7 +9,6 @@ def create_dummy_makefile
   end
 end
 
-have_func('rb_wait_for_single_fd')
 case RUBY_PLATFORM
 when /bsd/i, /darwin/i
   unless have_header('sys/event.h')

@@ -1,5 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
-class TestGod < MiniTest::Test
+
+class TestGod < Test::Unit::TestCase
   def setup
     God::Socket.stubs(:new).returns(true)
     God.stubs(:setup).returns(true)
@@ -15,10 +16,6 @@ class TestGod < MiniTest::Test
         w.driver.thread.kill
       end
     end
-    God.reset
-    #Some of the tests in this file intentionally set pid_file_directory to an invalid value
-    #This can cause a later test failure since God will call abort if pid_file_directory is not writable    
-    God.pid_file_directory = '~/.god/pids'
   end
 
   # applog
@@ -35,10 +32,11 @@ class TestGod < MiniTest::Test
     assert_equal Hash.new, God.watches
   end
 
-  # # init
+  # init
 
   def test_pid_file_directory_should_abort_if_called_after_watch
     God.watch { |w| w.name = 'foo'; w.start = 'bar' }
+
     assert_abort do
       God.pid_file_directory = 'foo'
     end
@@ -315,7 +313,7 @@ class TestGod < MiniTest::Test
   def test_control_should_raise_on_invalid_command
     God.watch { |w| w.name = 'foo'; w.start = 'bar' }
 
-    assert_raises InvalidCommandError do
+    assert_raise InvalidCommandError do
       God.control('foo', 'invalid')
     end
   end
@@ -453,7 +451,7 @@ class TestGod < MiniTest::Test
 
   def test_running_log_should_raise_on_unknown_watch
     God.internal_init
-    assert_raises(NoSuchWatchError) do
+    assert_raise(NoSuchWatchError) do
       God.running_log('foo', Time.now)
     end
   end
@@ -664,7 +662,7 @@ class TestGod < MiniTest::Test
 end
 
 
-# class TestGodOther < Minitest::Test
+# class TestGodOther < Test::Unit::TestCase
 #   def setup
 #     God::Socket.stubs(:new).returns(true)
 #     God.internal_init

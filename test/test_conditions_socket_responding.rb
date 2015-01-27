@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestConditionsSocketResponding < Minitest::Test
+class TestConditionsSocketResponding < Test::Unit::TestCase
   # valid?
 
   def test_valid_should_return_false_if_no_options_set

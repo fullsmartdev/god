@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestHipchat < Minitest::Test
+class TestHipchat < Test::Unit::TestCase
   def setup
     @hipchat = God::Contacts::Hipchat.new
   end

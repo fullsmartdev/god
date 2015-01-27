@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestWebhook < Minitest::Test
+class TestWebhook < Test::Unit::TestCase
   def setup
     @webhook = God::Contacts::Webhook.new
   end

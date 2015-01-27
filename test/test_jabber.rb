@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/helper'
 
-class TestJabber < Minitest::Test
+class TestJabber < Test::Unit::TestCase
 
   def setup
     @jabber = God::Contacts::Jabber.new

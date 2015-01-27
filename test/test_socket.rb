@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestSocket < Minitest::Test
+class TestSocket < Test::Unit::TestCase
   def setup
     silence_warnings do
       Object.const_set(:DRb, stub_everything)

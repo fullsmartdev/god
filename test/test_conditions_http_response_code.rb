@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestHttpResponseCode < Minitest::Test
+class TestHttpResponseCode < Test::Unit::TestCase
   def valid_condition
     c = Conditions::HttpResponseCode.new()
     c.watch = stub(:name => 'foo')

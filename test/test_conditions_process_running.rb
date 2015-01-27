@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestConditionsProcessRunning < Minitest::Test
+class TestConditionsProcessRunning < Test::Unit::TestCase
   def test_missing_pid_file_returns_opposite
     [true, false].each do |r|
       c = Conditions::ProcessRunning.new

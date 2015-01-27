@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestTimeline < Minitest::Test
+class TestTimeline < Test::Unit::TestCase
   def setup
     @timeline = Timeline.new(5)
   end

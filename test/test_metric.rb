@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestMetric < Minitest::Test
+class TestMetric < Test::Unit::TestCase
   def setup
     @metric = Metric.new(stub(:interval => 10), nil)
   end

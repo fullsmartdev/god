@@ -1,15 +1,14 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestDriver < Minitest::Test
+class TestDriver < Test::Unit::TestCase
   def setup
 
   end
 
   def test_push_pop_wait
-
     eq = God::DriverEventQueue.new
-    cond = eq.instance_variable_get(:@resource)
-    cond.expects(:wait).times(1)
+
+    MonitorMixin::ConditionVariable.any_instance.expects(:wait).times(1)
 
     eq.push(God::TimedEvent.new(0))
     eq.push(God::TimedEvent.new(0.1))

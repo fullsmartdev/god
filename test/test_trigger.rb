@@ -1,11 +1,7 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestTrigger < Minitest::Test
+class TestTrigger < Test::Unit::TestCase
   def setup
-    Trigger.reset
-  end
-
-  def teardown
     Trigger.reset
   end
 

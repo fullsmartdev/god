@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require File.dirname(__FILE__) + '/helper'
 
-class TestProwl < Minitest::Test
+class TestProwl < Test::Unit::TestCase
   def test_live_notify
     prowl = God::Contacts::Prowl.new
     prowl.name = "Prowly"

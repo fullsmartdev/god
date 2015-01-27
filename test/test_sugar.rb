@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestSugar < Minitest::Test
+class TestSugar < Test::Unit::TestCase
   def test_seconds
     assert_equal 1, 1.seconds
     assert_equal 1, 1.second

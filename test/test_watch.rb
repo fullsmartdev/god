@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestWatch < Minitest::Test
+class TestWatch < Test::Unit::TestCase
   def setup
     God.internal_init
     @watch = Watch.new

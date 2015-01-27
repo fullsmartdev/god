@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestEmail < Minitest::Test
+class TestEmail < Test::Unit::TestCase
   def setup
     God::Contacts::Email.to_email = 'dev@example.com'
     God::Contacts::Email.from_email = 'god@example.com'

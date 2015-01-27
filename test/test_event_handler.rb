@@ -17,7 +17,7 @@ module God
   end
 end
 
-class TestEventHandler < Minitest::Test
+class TestEventHandler < Test::Unit::TestCase
   def setup
     @h = God::EventHandler
   end
@@ -74,7 +74,7 @@ end
 
 # This doesn't currently work:
 #
-# class TestEventHandlerOperational < Minitest::Test
+# class TestEventHandlerOperational < Test::Unit::TestCase
 #   def test_operational
 #     God::EventHandler.start
 #     assert God::EventHandler.loaded?

@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestSystemPortablePoller < Minitest::Test
+class TestSystemPortablePoller < Test::Unit::TestCase
   def setup
     pid = Process.pid
     @process = System::PortablePoller.new(pid)

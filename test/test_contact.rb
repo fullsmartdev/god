@@ -1,6 +1,6 @@
 require File.dirname(__FILE__) + '/helper'
 
-class TestContact < Minitest::Test
+class TestContact < Test::Unit::TestCase
   def test_exists
     God::Contact
   end
@@ -8,7 +8,7 @@ class TestContact < Minitest::Test
   # generate
 
   def test_generate_should_raise_on_invalid_kind
-    assert_raises(NoSuchContactError) do
+    assert_raise(NoSuchContactError) do
       Contact.generate(:invalid)
     end
   end
@@ -59,42 +59,42 @@ class TestContact < Minitest::Test
 
   def test_normalize_should_raise_on_non_string_array_hash
     input = 1
-    assert_raises ArgumentError do
+    assert_raise ArgumentError do
       Contact.normalize(input)
     end
   end
 
   def test_normalize_should_raise_on_non_string_array_contacts_key
     input = {:contacts => 1}
-    assert_raises ArgumentError do
+    assert_raise ArgumentError do
       Contact.normalize(input)
     end
   end
 
   def test_normalize_should_raise_on_non_string_containing_array
     input = [1]
-    assert_raises ArgumentError do
+    assert_raise ArgumentError do
       Contact.normalize(input)
     end
   end
 
   def test_normalize_should_raise_on_non_string_containing_array_contacts_key
     input = {:contacts => [1]}
-    assert_raises ArgumentError do
+    assert_raise ArgumentError do
       Contact.normalize(input)
     end
   end
 
   def test_normalize_should_raise_on_absent_contacts_key
     input = {}
-    assert_raises ArgumentError do
+    assert_raise ArgumentError do
       Contact.normalize(input)
     end
   end
 
   def test_normalize_should_raise_on_extra_keys
     input = {:contacts => ['tom'], :priority => 1, :category => 'product', :extra => 'foo'}
-    assert_raises ArgumentError do
+    assert_raise ArgumentError do
       Contact.normalize(input)
     end
   end
@@ -102,7 +102,7 @@ class TestContact < Minitest::Test
   # notify
 
   def test_notify_should_be_abstract
-    assert_raises(AbstractMethodNotOverriddenError) do
+    assert_raise(AbstractMethodNotOverriddenError) do
       Contact.new.notify(:a, :b, :c, :d, :e)
     end
   end
